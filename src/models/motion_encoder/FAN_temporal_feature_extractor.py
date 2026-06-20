@@ -173,7 +173,7 @@ class TemporalTransformer3DModel(nn.Module):
             interpolation_scale=1,
         )
         # 在转onnx模型时，需要设置为False
-        self.pos_embed.pos_embed.requires_grad = True
+        self.pos_embed.pos_embed.requires_grad = False
         self.proj_out = zero_module(self.proj_out) if zero_initialize else random_module(self.proj_out)
 
     def forward(self, hidden_states, encoder_hidden_states=None, attention_mask=None, skip=True):

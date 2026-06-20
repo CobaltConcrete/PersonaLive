@@ -1,6 +1,5 @@
 import tensorrt as trt 
 import pycuda.driver as cuda
-import pycuda.autoinit
 import numpy as np
 import torch
 import traceback
@@ -58,7 +57,17 @@ class EngineModel:
         if not(self.extra_lock is None):
             self.extra_lock.acquire()
         assert os.path.exists(engine_file_path), "Engine model path not exists!"
-        self.ctx = cuda.Device(self.device_int).make_context()
+
+        # Use retain_primary_context() instead of make_context() so pycuda
+        # shares the same primary CUDA context that PyTorch already owns.
+        # make_context() pushes an independent secondary context which causes
+        # subsequent plain PyTorch ops (e.g. torch.norm) to fail with
+        # "CUDA error: invalid argument" because PyTorch's runtime no longer
+        # finds its own context current on the thread's context stack.
+        cuda.init()
+        self.ctx = cuda.Device(self.device_int).retain_primary_context()
+        self.ctx.push()
+
         try:
             self.engine = get_engine(engine_file_path) # 载入TensorRT引擎
             input_nvars = 0

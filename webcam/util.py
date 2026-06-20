@@ -73,7 +73,9 @@ def read_images_from_queue(queue, num_frames_needed, device, stop_event=None, pr
         read_size = min(queue.qsize(), num_frames_needed * 3)
     images = []
     for _ in range(read_size):
-        images.append(queue.get())
+
+        images.append(queue.get()) # FIX
+        # images.append(queue.get().to(device))
 
     if prefer_latest:
         return images[-num_frames_needed:]

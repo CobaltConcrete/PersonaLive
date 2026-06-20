@@ -77,7 +77,10 @@ class Pipeline:
 
     def accept_new_params(self, params: "Pipeline.InputParams"):
         if hasattr(params, "image"):
-            image_pil = params.image.to(self.device).float() / 255.0
+
+            image_pil = params.image.to(self.device).float() / 255.0 # FIX
+            # image_pil = params.image.float() / 255.0
+
             image_pil = image_pil * 2. - 1. 
             image_pil = image_pil.permute(2, 0, 1).unsqueeze(0)
             self.input_queue.put(image_pil)

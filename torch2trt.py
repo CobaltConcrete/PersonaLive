@@ -120,12 +120,17 @@ optimize_onnx(
     onnx_opt_path=onnx_opt_path,
 )
 
+print("Converting to TensorRT Engine...")
+
 engine = engine_from_network(
     network_from_onnx_path(onnx_opt_path, flags=[trt.OnnxParserFlag.NATIVE_INSTANCENORM]),
     config=CreateConfig(
         fp16=True, refittable=False, profiles=[profile]
     ),
 )
+
+print(f"Saving TensorRT Engine to {tensorrt_target_model}...")
+
 save_engine(engine, path=tensorrt_target_model)
 gc.collect()
 torch.cuda.empty_cache()
